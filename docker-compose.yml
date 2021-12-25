@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  codereptile_cryptography_bot:
+    image: codereptile/codereptile_cryptography_bot
+    labels:
+      - "com.centurylinklabs.watchtower.scope=myscope"
+    environment:
+      CRYPTOGRAPHY_BOT_TOKEN: "I wont' tell you"
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 10 --scope myscope
+    labels:
+      - "com.centurylinklabs.watchtower.scope=myscope"
