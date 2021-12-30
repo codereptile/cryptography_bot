@@ -1,4 +1,4 @@
-name: Release workflow
+name: Commit workflow
 on: push
 
 jobs:
