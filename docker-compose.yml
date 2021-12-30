@@ -6,7 +6,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.scope=myscope"
     environment:
-      CRYPTOGRAPHY_BOT_TOKEN: "I wont' tell you"
+      CRYPTOGRAPHY_BOT_TOKEN: "I won't tell you"
 
   watchtower:
     image: containrrr/watchtower
