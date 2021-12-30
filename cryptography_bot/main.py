@@ -3,6 +3,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
+from telegram.error import BadRequest
 import random
 import os
 import logging
@@ -27,7 +28,7 @@ if LOGGING:
 
 
 def start(update: Update, context: CallbackContext):
-    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.2.0\n" \
+    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.2.1\n" \
            + "I can encrypt your messages using Elgamal crypto-system over group G=(Z_p\\{0}, *)\n" \
            + "Use /help to list all available commands\n"
     context.bot.send_message(chat_id=update.effective_chat.id,
@@ -78,8 +79,16 @@ def encrypt_simple(update: Update, context: CallbackContext):
 
     text += "-1"
 
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=text)
+    try:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=text)
+    except BadRequest as bad_request:
+        if bad_request.message == "Message is too long":
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text="Error: message is too long")
+        else:
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text="Error: unknown error")
 
 
 def decrypt_simple(update: Update, context: CallbackContext):
@@ -171,8 +180,16 @@ def encrypt(update: Update, context: CallbackContext):
 
     text += "-1"
 
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=text)
+    try:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=text)
+    except BadRequest as bad_request:
+        if bad_request.message == "Message is too long":
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text="Error: message is too long")
+        else:
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text="Error: unknown error")
 
 
 def decrypt(update: Update, context: CallbackContext):
