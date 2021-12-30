@@ -6,6 +6,7 @@ from telegram.ext import MessageHandler, Filters
 import random
 import os
 import logging
+import sympy
 
 token = os.environ['CRYPTOGRAPHY_BOT_TOKEN']
 
@@ -25,7 +26,7 @@ if LOGGING:
 
 
 def start(update: Update, context: CallbackContext):
-    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.0.0\n" \
+    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.1.0\n" \
            + "I can encrypt your messages using Elgamal crypto-system over group G=(Z_p\\{0}, *)\n" \
            + "Use /help to list all available commands\n"
     context.bot.send_message(chat_id=update.effective_chat.id,
@@ -37,18 +38,10 @@ def help(update: Update, context: CallbackContext):
            + "Encrypts the {message} using {p} and {g} as settings for the crypto-system and {g^a} as a public key.\n"
     text += "/decrypt {p} {a} {encrypted-message}\n" \
             + "Decrypts the {encrypted-message} using {p} as a setting for the crypto-system and {a} as a private key\n"
+    text += "/gen_keys {min_p}\n" \
+            + "Creates a crypto-system G (with p >= min_p) and pair of private and corresponding private keys\n"
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=text)
-
-
-def fast_pow(x, y, p):
-    if y == 0:
-        return 1
-    if y % 2 == 0:
-        tmp = fast_pow(x, y / 2, p)
-        return (tmp * tmp) % p
-    else:
-        return (x * fast_pow(x, y - 1, p)) % p
 
 
 def encrypt(update: Update, context: CallbackContext):
@@ -68,8 +61,8 @@ def encrypt(update: Update, context: CallbackContext):
     for i in range(len(message) - 1):
         character = ord(message[i])
         b = random.randint(1, p)
-        g_b = fast_pow(g, b, p)
-        g_ab = fast_pow(g_a, b, p)
+        g_b = pow(g, b, p)
+        g_ab = pow(g_a, b, p)
         encrypted_character = (character * g_ab) % p
 
         text += str(g_b) + " " + str(encrypted_character) + "\n"
@@ -97,11 +90,41 @@ def decrypt(update: Update, context: CallbackContext):
             break
         encrypted_character = int(data[i + 1])
 
-        character = (encrypted_character * fast_pow(g_b, p - 1 - a, p)) % p
+        character = (encrypted_character * pow(g_b, p - 1 - a, p)) % p
 
         text += chr(character)
 
         i += 2
+
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=text)
+
+
+def gen_keys(update: Update, context: CallbackContext):
+    min_p = 1000
+    data = update.message.text.split()
+    print(len(data))
+    if len(data) > 3:
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text="Too many fields")
+    elif len(data) == 2:
+        min_p = int(data[1])
+
+    text = "Your key set:\n"
+
+    p = sympy.randprime(min_p, min_p * 2)
+    text += "P = " + str(p) + "\n"
+    g = sympy.randprime(p, 2 * p) % p
+    text += "G = " + str(g) + "\n"
+    a = random.randint(int(p / 2), p)
+    text += "A(private key) = " + str(a) + " KEEP THIS NUMBER SECRET!!!\n"
+    g_a = pow(g, a, p)
+    text += "G^A(public key) = " + str(g_a) + "\n"
+
+    text += "\nNow your friend can make a secure message using:\n"
+    text += "/encrypt " + str(p) + " " + str(g) + " " + str(g_a) + " {some message}\n"
+    text += "Which could be decrypted using only:\n"
+    text += "/decrypt " + str(p) + " " + str(a) + " {encrypted message}\n"
 
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=text)
@@ -116,6 +139,7 @@ if not TEST_MODE:
     dispatcher.add_handler(CommandHandler('help', help))
     dispatcher.add_handler(CommandHandler('encrypt', encrypt))
     dispatcher.add_handler(CommandHandler('decrypt', decrypt))
+    dispatcher.add_handler(CommandHandler('gen_keys', gen_keys))
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
 if __name__ == '__main__':
