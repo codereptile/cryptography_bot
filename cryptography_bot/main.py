@@ -261,13 +261,13 @@ def gen_keys(update: Update, context: CallbackContext):
         text += "\nWARNING!!! Your key is too large to generate G as a primitive root of p, " \
                 "so a random number will be used. To get a primitive root of p, use min_p <= 10^40\n\n"
     a = random.randint(int(p / 2), p)
-    text += "A(private key) = " + str(a) + " KEEP THIS NUMBER SECRET!!!\n"
+    text += "A(private key) = " + str(a) + "\nKEEP THIS NUMBER SECRET!!!\n"
     g_a = pow(g, a, p)
     text += "G^A(public key) = " + str(g_a) + "\n"
 
     text += "\nNow your friend can make a secure message using:\n"
     text += "/encrypt " + str(p) + " " + str(g) + " " + str(g_a) + " {some message}\n"
-    text += "Which could be decrypted using only:\n"
+    text += "\nWhich could be decrypted using only:\n"
     text += "/decrypt " + str(p) + " " + str(a) + " {encrypted message}\n"
 
     context.bot.send_message(chat_id=update.effective_chat.id,
