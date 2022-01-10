@@ -1,3 +1,5 @@
+import math
+
 from telegram.ext import Updater
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -28,7 +30,7 @@ if LOGGING:
 
 
 def start(update: Update, context: CallbackContext):
-    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.2.1\n" \
+    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.2.2\n" \
            + "I can encrypt your messages using Elgamal crypto-system over group G=(Z_p\\{0}, *)\n" \
            + "Use /help to list all available commands\n"
     context.bot.send_message(chat_id=update.effective_chat.id,
@@ -183,8 +185,8 @@ def encrypt(update: Update, context: CallbackContext):
     try:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=text)
-    except BadRequest as bad_request:
-        if bad_request.message == "Message is too long":
+    except BadRequest as error:
+        if error.message == "Message is too long":
             context.bot.send_message(chat_id=update.effective_chat.id,
                                      text="Error: message is too long")
         else:
@@ -235,8 +237,10 @@ def decrypt(update: Update, context: CallbackContext):
 
 def gen_keys(update: Update, context: CallbackContext):
     min_p = 1000
-    data = update.message.text.split()
-    print(len(data))
+    try:
+        data = update.message.text.split()
+    except AttributeError:
+        return
     if len(data) > 3:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text="Too many fields")
@@ -246,9 +250,16 @@ def gen_keys(update: Update, context: CallbackContext):
     text = "Your key set:\n"
 
     p = sympy.randprime(min_p, min_p * 2)
+    print(math.log(p, 10))
     text += "P = " + str(p) + "\n"
-    g = sympy.randprime(p, 2 * p) % p
-    text += "G = " + str(g) + "\n"
+    g = sympy.randprime(p + 1, 2 * p - 1) % p
+    if min_p <= 10 ** 40:
+        g = sympy.primitive_root(p)
+        text += "G = " + str(g) + "\n"
+    else:
+        text += "G = " + str(g) + "\n"
+        text += "\nWARNING!!! Your key is too large to generate G as a primitive root of p, " \
+                "so a random number will be used. To get a primitive root of p, use min_p <= 10^40\n\n"
     a = random.randint(int(p / 2), p)
     text += "A(private key) = " + str(a) + " KEEP THIS NUMBER SECRET!!!\n"
     g_a = pow(g, a, p)
