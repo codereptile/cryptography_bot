@@ -52,7 +52,7 @@ def help(update: Update, context: CallbackContext):
             + "Used for deciphering messages, encrypted with /encrypt_simple\n"
     text += "-------\n"
     text += "/gen_keys {min_p}\n" \
-            + "Creates a crypto-system G (with p >= min_p) and pair of private and corresponding private keys\n"
+            + "Creates a crypto-system G (with p >= min_p) and pair of private and corresponding public keys\n"
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=text)
 
