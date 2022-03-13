@@ -30,7 +30,7 @@ if LOGGING:
 
 
 def start(update: Update, context: CallbackContext):
-    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.2.4\n" \
+    text = "Hi there " + update.message.from_user.username + "!\nI'm the Codereptile cryptography bot v1.2.5\n" \
            + "I can encrypt your messages using Elgamal crypto-system over group G=(Z_p\\{0}, *)\n" \
            + "Use /help to list all available commands\n\n" \
             + "You can check my github on:\nhttps://github.com/codereptile/codereptile_cryptography_bot"
