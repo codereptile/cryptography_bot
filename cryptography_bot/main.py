@@ -261,7 +261,7 @@ def gen_keys(update: Update, context: CallbackContext):
         text += "G = " + str(g) + "\n"
         text += "\nWARNING!!! Your key is too large to generate G as a primitive root of p, " \
                 "so a random number will be used. To get a primitive root of p, use min_p <= 10^40\n\n"
-    a = random.randint(int(p / 2), p)
+    a = random.randint(1, p)
     text += "A(private key) = " + str(a) + "\nKEEP THIS NUMBER SECRET!!!\n"
     g_a = pow(g, a, p)
     text += "G^A(public key) = " + str(g_a) + "\n"
